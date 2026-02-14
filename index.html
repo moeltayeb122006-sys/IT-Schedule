@@ -3,419 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IT Department Schedule | Fall 2025/2026</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>BATU Schedule | Smart</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-color: #1e3a8a; 
-            --lecture-bg: #eff6ff;
-            --lecture-border: #3b82f6;
-            --lab-bg: #fefce8;
-            --lab-border: #eab308;
-            --bg-color: #f3f4f6;
-            --text-color: #1f2937;
+        :root { --primary: #2563eb; --danger: #ef4444; --success: #10b981; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --border: #e2e8f0; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; padding-bottom: 120px; }
+        
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { color: var(--primary); margin: 0; font-weight: 800; font-size: 1.8em; letter-spacing: -0.5px; }
+        .header p { color: #64748b; margin-top: 5px; font-size: 0.9em; }
+
+        .btn-notify {
+            background: #f59e0b; color: white; border: none; padding: 8px 15px; 
+            border-radius: 20px; font-size: 0.85em; font-weight: bold; cursor: pointer; 
+            margin-top: 10px; display: inline-flex; align-items: center; gap: 5px;
+            box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+        }
+        .btn-notify.active { background: #10b981; box-shadow: none; cursor: default; }
+
+        /* Floating Action Bar */
+        .controls { 
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); 
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            padding: 10px 20px; borderRadius: 50px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; gap: 10px; z-index: 1000;
+            border: 1px solid var(--border); width: max-content;
+        }
+        .btn { padding: 10px 20px; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; font-size: 0.9em; transition: 0.2s; display: flex; align-items: center; gap: 5px; }
+        .btn-edit { background: var(--primary); color: white; }
+        .btn-save { background: var(--success); color: white; display: none; }
+        .btn-reset { background: #f1f5f9; color: #64748b; }
+        .btn:active { transform: scale(0.95); }
+
+        .filter-section { margin-bottom: 25px; text-align: center; }
+        .filter-section select { 
+            padding: 12px 20px; font-size: 1em; border: 2px solid #e2e8f0; 
+            border-radius: 12px; width: 100%; max-width: 350px; 
+            background: white; font-weight: 600; color: var(--text); outline: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            color: var(--primary-color);
-            margin-bottom: 5px;
-            font-weight: 700;
-        }
-
-        .header p {
-            color: #4b5563;
-        }
-
-        .filter-section {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .filter-section select {
-            padding: 10px 20px;
-            font-size: 1em;
-            font-family: 'Inter', sans-serif;
-            border: 2px solid var(--primary-color);
-            border-radius: 8px;
-            outline: none;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-
-        .day-section {
-            margin-bottom: 40px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-        }
-
-        .day-title {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 10px 30px;
-            border-radius: 8px;
-            display: inline-block;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 5px solid #ccc;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-        }
-
-        .card.lecture {
-            background-color: var(--lecture-bg);
-            border-left-color: var(--lecture-border);
-        }
-
-        .card.lab {
-            background-color: var(--lab-bg);
-            border-left-color: var(--lab-border);
-        }
-
-        .card.active-now {
-            border: 2px solid #10b981; 
-            box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
-            transform: scale(1.01);
-        }
-
-        .active-badge {
-            background-color: #10b981;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 700;
-            animation: pulse 1.5s infinite; 
-            margin-left: 10px;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.6; }
-            100% { opacity: 1; }
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            padding-bottom: 10px;
-        }
-
-        .time-wrapper {
-            display: flex;
-            align-items: center;
-        }
-
-        .time {
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .badge.lecture { background-color: var(--lecture-border); color: white; }
-        .badge.lab { background-color: var(--lab-border); color: #000; }
-
-        .subject {
-            font-size: 1.1em;
-            font-weight: 700;
-            margin-bottom: 15px;
-            line-height: 1.4;
-            flex-grow: 1;
-        }
-
-        .details {
-            background: rgba(255,255,255,0.6);
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-
-        .details p {
-            margin: 5px 0;
-            font-size: 0.9em;
-            color: #444;
+        .day-section { margin-bottom: 35px; }
+        .day-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .day-title { background: var(--text); color: white; padding: 6px 16px; border-radius: 8px; font-weight: 700; font-size: 1em; }
+        
+        .btn-add-class {
+            background: transparent; border: 2px dashed #cbd5e1; color: #64748b;
+            padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.85em; font-weight: 600;
+            display: none;
         }
         
-        .groups {
-            margin-top: auto;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; }
+
+        .card { 
+            background: var(--card-bg); padding: 16px; border-radius: 16px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid var(--border);
+            border-left: 5px solid #cbd5e1; position: relative; transition: all 0.2s;
+        }
+        .card.lecture { border-left-color: #3b82f6; background: #eff6ff; }
+        .card.lab { border-left-color: #f59e0b; background: #fffbeb; }
+
+        body.editing .card { border: 2px dashed var(--primary); animation: shake 0.3s; }
+        body.editing .btn-save { display: flex; }
+        body.editing .btn-add-class { display: block; }
+        body.editing .delete-btn { display: block; }
+        body.editing .edit-select { display: block; }
+        body.editing .badge { display: none; }
+        
+        [contenteditable="true"] { border-bottom: 1px dashed #94a3b8; outline: none; min-width: 20px; }
+        [contenteditable="true"]:focus { background: rgba(255,255,255,0.8); border-bottom-style: solid; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .time { font-weight: 700; color: var(--primary); font-size: 0.95em; }
+        
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge.lecture { background: #3b82f6; color: white; }
+        .badge.lab { background: #f59e0b; color: white; }
+
+        .edit-select { display: none; padding: 2px 5px; font-size: 0.8em; border-radius: 4px; border: 1px solid #ccc; }
+        .delete-btn {
+            position: absolute; top: -10px; right: -10px; background: var(--danger); color: white;
+            width: 25px; height: 25px; border-radius: 50%; border: none; cursor: pointer;
+            display: none; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10;
         }
 
-        .group-tag {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 0.75em;
-            font-weight: 600;
-        }
+        .subject { font-size: 1.1em; font-weight: 800; margin-bottom: 8px; line-height: 1.3; color: var(--text); }
+        .details { font-size: 0.9em; color: #475569; display: flex; flex-direction: column; gap: 4px; }
+        .active-badge { background: var(--success); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.7em; font-weight: 700; margin-left: 8px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>Information Technology Schedule</h1>
-        <p>Level 1 | Fall Semester 2025/2026</p>
+        <h1>BATU Schedule</h1>
+        <p>Smart Edition 🔔</p>
+        <button id="notifyBtn" class="btn-notify" onclick="requestNotificationPermission()">
+            🔔 Enable Notifications
+        </button>
     </div>
 
     <div class="filter-section">
-        <label for="groupSelect"><strong>Select Your Group to View Schedule:</strong></label>
         <select id="groupSelect" onchange="applyFilter()">
-            <option value="all">Show All Cohorts & Groups</option>
-            
-            <optgroup label="Cohort 1 (Group 1)">
-                <option value="C1_1A">Section 1 - A</option>
-                <option value="C1_1B">Section 1 - B</option>
-                <option value="C1_2A">Section 2 - A</option>
-                <option value="C1_2B">Section 2 - B</option>
-                <option value="C1_3A">Section 3 - A</option>
-                <option value="C1_3B">Section 3 - B</option>
-                <option value="C1_4A">Section 4 - A</option>
-                <option value="C1_4B">Section 4 - B</option>
-            </optgroup>
-
-            <optgroup label="Cohort 2 (Group 2)">
-                <option value="C2_1A">Section 1 - A</option>
-                <option value="C2_1B">Section 1 - B</option>
-                <option value="C2_2A">Section 2 - A</option>
-                <option value="C2_2B">Section 2 - B</option>
-                <option value="C2_3A">Section 3 - A</option>
-                <option value="C2_3B">Section 3 - B</option>
-                <option value="C2_4A">Section 4 - A</option>
-                <option value="C2_4B">Section 4 - B</option>
-            </optgroup>
-
-            <optgroup label="Cohort 3 (Group 3)">
-                <option value="C3_1A">Section 1 - A</option>
-                <option value="C3_1B">Section 1 - B</option>
-                <option value="C3_2A">Section 2 - A</option>
-                <option value="C3_2B">Section 2 - B</option>
-                <option value="C3_3A">Section 3 - A</option>
-                <option value="C3_3B">Section 3 - B</option>
-                <option value="C3_4A">Section 4 - A</option>
-                <option value="C3_4B">Section 4 - B</option>
-            </optgroup>
+            <option value="all">Show All Groups</option>
+            <optgroup label="Cohort 1"><option value="C1_1A">Sec 1-A</option><option value="C1_1B">Sec 1-B</option><option value="C1_2A">Sec 2-A</option><option value="C1_2B">Sec 2-B</option><option value="C1_3A">Sec 3-A</option><option value="C1_3B">Sec 3-B</option><option value="C1_4A">Sec 4-A</option><option value="C1_4B">Sec 4-B</option></optgroup>
+            <optgroup label="Cohort 2"><option value="C2_1A">Sec 1-A</option><option value="C2_1B">Sec 1-B</option><option value="C2_2A">Sec 2-A</option><option value="C2_2B">Sec 2-B</option><option value="C2_3A">Sec 3-A</option><option value="C2_3B">Sec 3-B</option><option value="C2_4A">Sec 4-A</option><option value="C2_4B">Sec 4-B</option></optgroup>
+            <optgroup label="Cohort 3"><option value="C3_1A">Sec 1-A</option><option value="C3_1B">Sec 1-B</option><option value="C3_2A">Sec 2-A</option><option value="C3_2B">Sec 2-B</option><option value="C3_3A">Sec 3-A</option><option value="C3_3B">Sec 3-B</option><option value="C3_4A">Sec 4-A</option><option value="C3_4B">Sec 4-B</option></optgroup>
         </select>
     </div>
 
     <div id="schedule-container"></div>
 
+    <div class="controls">
+        <button class="btn btn-edit" onclick="toggleEditMode()">✏️ Edit</button>
+        <button class="btn btn-save" onclick="saveChanges()">💾 Save</button>
+        <button class="btn btn-reset" onclick="resetData()">↺ Reset</button>
+    </div>
+
     <script>
-        const scheduleData = [
-            // ==================================================================
-            //                              SATURDAY
-            // ==================================================================
+        // --- 1. Data Structure ---
+        const defaultData = [
             {
                 day: "Saturday",
                 classes: [
-                    // ---------------- COHORT 1 (Group 1) [Source 1] ----------------
-                    // 9:40 - 11:00 (Moved slightly to fit logic): Lecture
-                    { time: "9:40 - 11:00", subject: "Technical English 2", type: "lecture", instructor: "Dr. Mohamed El-Kadeem", location: "Hall 101", targets: ["C1_ALL"] },
-                    // 11:40 - 1:00 Labs
-                    { time: "11:40 - 1:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C1_1A", "C1_1B"] },
-                    { time: "11:40 - 1:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C1_3A", "C1_3B"] },
-                    // 1:00 - 2:20 Labs
-                    { time: "1:00 - 2:20", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C1_2A", "C1_2B"] },
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C1_4A"] },
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C1_4B"] },
-
-                    // ---------------- COHORT 2 (Group 2) [Source 7] ----------------
-                    // 9:00 - 10:20 Labs
-                    { time: "9:00 - 10:20", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C2_4A", "C2_4B"] },
-                    { time: "9:00 - 10:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C2_2A", "C2_2B"] },
-                    // 10:20 - 11:40 Lecture
-                    { time: "10:20 - 11:40", subject: "Technical English 2", type: "lecture", instructor: "Dr. Mohamed El-Kadeem", location: "Hall 101", targets: ["C2_ALL"] },
-                    // 11:40 - 1:00 Labs
-                    { time: "11:40 - 1:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C2_1A", "C2_1B"] },
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C2_2A"] },
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C2_2B"] },
-                    { time: "11:40 - 1:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C2_3A", "C2_3B"] },
-                    // 1:00 - 2:20 Labs
-                    { time: "1:00 - 2:20", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C2_3A", "C2_3B"] },
-
-                    // ---------------- COHORT 3 (Group 3) [Source 8] ----------------
-                    // 9:00 - 10:20 Labs
-                    { time: "9:00 - 10:20", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C3_1A", "C3_1B"] },
-                    { time: "9:00 - 10:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C3_2A", "C3_2B"] },
-                    // 10:20 - 11:40 Labs
-                    { time: "10:20 - 11:40", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C3_3A", "C3_3B"] },
-                    { time: "10:20 - 11:40", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C3_4A", "C3_4B"] },
-                    // 11:40 - 1:00 Labs
-                    { time: "11:40 - 1:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C3_4A", "C3_4B"] },
-                    { time: "11:40 - 1:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C3_1A", "C3_1B"] },
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C3_2A"] },
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C3_2B"] },
-                    // 1:00 - 2:20 Labs
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C3_3A"] },
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C3_3B"] }
+                    { id: 1, time: "09:40 - 11:00", subject: "Technical English 2", type: "lecture", instructor: "Dr. Mohamed El-Kadeem", location: "Hall 101", targets: ["C1_ALL"] },
+                    { id: 2, time: "11:40 - 01:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C1_1A", "C1_1B"] },
+                    { id: 3, time: "11:40 - 01:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C1_3A", "C1_3B"] },
+                    { id: 4, time: "01:00 - 02:20", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C1_2A", "C1_2B"] },
+                    { id: 5, time: "01:00 - 02:20", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C1_4A"] },
+                    { id: 6, time: "01:00 - 02:20", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C1_4B"] },
+                    { id: 7, time: "09:00 - 10:20", subject: "Programming C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C2_4A", "C2_4B"] },
+                    { id: 8, time: "09:00 - 10:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C2_2A", "C2_2B"] },
+                    { id: 9, time: "10:20 - 11:40", subject: "Technical English 2", type: "lecture", instructor: "Dr. Mohamed El-Kadeem", location: "Hall 101", targets: ["C2_ALL"] },
+                    { id: 10, time: "11:40 - 01:00", subject: "Programming C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C2_1A", "C2_1B"] },
+                    { id: 11, time: "11:40 - 01:00", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 203/202", targets: ["C2_2A", "C2_2B"] },
+                    { id: 12, time: "11:40 - 01:00", subject: "Programming C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C2_3A", "C2_3B"] },
+                    { id: 13, time: "01:00 - 02:20", subject: "Programming C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C2_3A", "C2_3B"] },
+                    { id: 14, time: "09:00 - 10:20", subject: "Programming C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C3_1A", "C3_1B"] },
+                    { id: 15, time: "09:00 - 10:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C3_2A", "C3_2B"] },
+                    { id: 16, time: "10:20 - 11:40", subject: "Programming C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C3_3A", "C3_3B"] },
+                    { id: 17, time: "10:20 - 11:40", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C3_4A", "C3_4B"] },
+                    { id: 18, time: "11:40 - 01:00", subject: "Programming C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C3_4A", "C3_4B"] },
+                    { id: 19, time: "11:40 - 01:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C3_1A", "C3_1B"] },
+                    { id: 20, time: "11:40 - 01:00", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 202/203", targets: ["C3_2A", "C3_2B"] },
+                    { id: 21, time: "01:00 - 02:20", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 202/203", targets: ["C3_3A", "C3_3B"] }
                 ]
             },
-
-            // ==================================================================
-            //                               SUNDAY
-            // ==================================================================
             {
                 day: "Sunday",
                 classes: [
-                    // ---------------- COHORT 1 (Group 1) ----------------
-                    { time: "9:00 - 10:20", subject: "Mathematics 2", type: "lecture", instructor: "Dr. Mohamed El-Shazly", location: "Hall 101", targets: ["C1_ALL"] },
-                    { time: "10:20 - 11:40", subject: "Intro To IOT & Connecting Things", type: "lecture", instructor: "Dr. Osama / Dr. Basant", location: "Hall 101", targets: ["C1_ALL"] },
-                    // 12:20 - 1:00 ? (Aligned to 11:40-1:00 block)
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 316", targets: ["C1_3A"] },
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 207", targets: ["C1_3B"] },
-                    { time: "11:40 - 1:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 304", targets: ["C1_4A", "C1_4B"] },
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C1_1A"] },
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C1_1B"] },
-                    // 1:00 - 2:20 Labs
-                    { time: "1:00 - 2:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 304", targets: ["C1_2A", "C1_2B"] },
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C1_2A"] },
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C1_2B"] },
-                    { time: "1:00 - 2:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 216", targets: ["C1_1A", "C1_1B"] },
-
-                    // ---------------- COHORT 2 (Group 2) ----------------
-                    { time: "9:00 - 10:20", subject: "Microsoft Office", type: "lecture", instructor: "Dr. Haymen El-Sayed", location: "Hall 118", targets: ["C2_ALL"] },
-                    { time: "10:20 - 11:40", subject: "Programming Essentials in C", type: "lecture", instructor: "Dr. Dina Abdelhafez", location: "Hall 118", targets: ["C2_ALL"] },
-                    { time: "11:40 - 1:00", subject: "Mathematics 2", type: "lecture", instructor: "Dr. Mohamed El-Shazly", location: "Hall 118", targets: ["C2_ALL"] },
-                    // 1:00 - 2:20 Labs [Source 7 Sunday]
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 207", targets: ["C2_3A"] },
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 316", targets: ["C2_3B"] },
-
-                    // ---------------- COHORT 3 (Group 3) ----------------
-                    // 9:40 - 11:00 Labs [Source 8 Sunday]
-                    { time: "9:40 - 11:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 207", targets: ["C3_1A"] },
-                    { time: "9:40 - 11:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 316", targets: ["C3_1B"] },
-                    { time: "9:40 - 11:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 304", targets: ["C3_2A", "C3_2B"] },
-                    { time: "11:40 - 1:00", subject: "Microsoft Office", type: "lecture", instructor: "Dr. Haymen El-Sayed", location: "Hall 101", targets: ["C3_ALL"] },
-                    { time: "1:00 - 2:20", subject: "Programming Essentials in C", type: "lecture", instructor: "Dr. Dina Abdelhafez", location: "Hall 101", targets: ["C3_ALL"] },
-                    { time: "2:20 - 3:45", subject: "Cyber Security Essentials", type: "lecture", instructor: "Dr. Ashraf Abdelaziz", location: "Hall 101", targets: ["C3_ALL"] }
+                    { id: 22, time: "09:00 - 10:20", subject: "Mathematics 2", type: "lecture", instructor: "Dr. Mohamed El-Shazly", location: "Hall 101", targets: ["C1_ALL"] },
+                    { id: 23, time: "10:20 - 11:40", subject: "Intro To IOT", type: "lecture", instructor: "Dr. Osama / Dr. Basant", location: "Hall 101", targets: ["C1_ALL"] },
+                    { id: 24, time: "11:40 - 01:00", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 316/207", targets: ["C1_3A", "C1_3B"] },
+                    { id: 25, time: "11:40 - 01:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 304", targets: ["C1_4A", "C1_4B"] },
+                    { id: 26, time: "11:40 - 01:00", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 202/203", targets: ["C1_1A", "C1_1B"] },
+                    { id: 27, time: "01:00 - 02:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 304", targets: ["C1_2A", "C1_2B"] },
+                    { id: 28, time: "01:00 - 02:20", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 202/203", targets: ["C1_2A", "C1_2B"] },
+                    { id: 29, time: "01:00 - 02:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 216", targets: ["C1_1A", "C1_1B"] },
+                    { id: 30, time: "09:00 - 10:20", subject: "Microsoft Office", type: "lecture", instructor: "Dr. Haymen El-Sayed", location: "Hall 118", targets: ["C2_ALL"] },
+                    { id: 31, time: "10:20 - 11:40", subject: "Programming C", type: "lecture", instructor: "Dr. Dina Abdelhafez", location: "Hall 118", targets: ["C2_ALL"] },
+                    { id: 32, time: "11:40 - 01:00", subject: "Mathematics 2", type: "lecture", instructor: "Dr. Mohamed El-Shazly", location: "Hall 118", targets: ["C2_ALL"] },
+                    { id: 33, time: "01:00 - 02:20", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 207/316", targets: ["C2_3A", "C2_3B"] },
+                    { id: 34, time: "09:40 - 11:00", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 207/316", targets: ["C3_1A", "C3_1B"] },
+                    { id: 35, time: "09:40 - 11:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 304", targets: ["C3_2A", "C3_2B"] },
+                    { id: 36, time: "11:40 - 01:00", subject: "Microsoft Office", type: "lecture", instructor: "Dr. Haymen El-Sayed", location: "Hall 101", targets: ["C3_ALL"] },
+                    { id: 37, time: "01:00 - 02:20", subject: "Programming C", type: "lecture", instructor: "Dr. Dina Abdelhafez", location: "Hall 101", targets: ["C3_ALL"] },
+                    { id: 38, time: "02:20 - 03:45", subject: "Cyber Security", type: "lecture", instructor: "Dr. Ashraf Abdelaziz", location: "Hall 101", targets: ["C3_ALL"] }
                 ]
             },
-
-            // ==================================================================
-            //                              WEDNESDAY
-            // ==================================================================
             {
                 day: "Wednesday",
                 classes: [
-                    // ---------------- COHORT 1 (Group 1) ----------------
-                    { time: "9:00 - 10:20", subject: "Microsoft Office", type: "lecture", instructor: "Dr. Haymen El-Sayed", location: "Hall 101", targets: ["C1_ALL"] },
-                    { time: "10:20 - 11:40", subject: "Cyber Security Essentials", type: "lecture", instructor: "Dr. Ashraf Abdelaziz", location: "Hall 101", targets: ["C1_ALL"] },
-                    // 11:40 - 1:00 Labs
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C1_4A"] },
-                    { time: "11:40 - 1:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C1_4B"] },
-                    { time: "11:40 - 1:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "University Lab", targets: ["C1_3A"] },
-                    { time: "11:40 - 1:00", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C1_3B"] },
-                    { time: "1:00 - 2:20", subject: "Programming Essentials in C", type: "lecture", instructor: "Dr. Ghada", location: "Hall 118", targets: ["C1_ALL"] },
-
-                    // ---------------- COHORT 2 (Group 2) ----------------
-                    // 9:00 - 10:20 Labs [Source 7 Wed Top Row]
-                    { time: "9:00 - 10:20", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C2_1A", "C2_1B"] },
-                    { time: "9:00 - 10:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 216", targets: ["C2_2A", "C2_2B"] },
-                    { time: "9:00 - 10:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 304", targets: ["C2_3A", "C2_3B"] },
-                    // The Specific Fix for C2_4A and 4B
-                    { time: "9:00 - 10:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C2_4A"] },
-                    { time: "9:00 - 10:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C2_4B"] },
-                    
-                    // Lectures
-                    { time: "11:00 - 12:20", subject: "Cyber Security Essentials", type: "lecture", instructor: "Dr. Ashraf Abdelaziz", location: "Hall 101", targets: ["C2_ALL"] },
-                    { time: "12:20 - 1:40", subject: "Intro To IOT & Connecting Things", type: "lecture", instructor: "Dr. Osama / Dr. Basant", location: "Hall 101", targets: ["C2_ALL"] },
-                    
-                    // 1:40 - 3:00 Labs [Source 7 Wed Bottom Row]
-                    { time: "1:40 - 3:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315", targets: ["C2_1A", "C2_1B"] },
-                    { time: "1:40 - 3:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 316", targets: ["C2_2A"] },
-                    { time: "1:40 - 3:00", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 207", targets: ["C2_2B"] },
-                    { time: "1:40 - 3:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 304", targets: ["C2_3A", "C2_3B"] },
-
-                    // ---------------- COHORT 3 (Group 3) ----------------
-                    { time: "9:00 - 10:20", subject: "Mathematics 2", type: "lecture", instructor: "Dr. Mohamed El-Shazly", location: "Hall 118", targets: ["C3_ALL"] },
-                    { time: "10:20 - 11:40", subject: "Intro To IOT & Connecting Things", type: "lecture", instructor: "Dr. Osama / Dr. Basant", location: "Hall 118", targets: ["C3_ALL"] },
-                    { time: "11:40 - 1:00", subject: "Technical English 2", type: "lecture", instructor: "Dr. Mohamed El-Kadeem", location: "Hall 118", targets: ["C3_ALL"] },
-                    // 1:00 - 2:20 Labs
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 203", targets: ["C3_4A"] },
-                    { time: "1:00 - 2:20", subject: "Intro To IOT & Connecting Things", type: "lab", instructor: "TBA", location: "Lab 202", targets: ["C3_4B"] },
-                    { time: "1:00 - 2:20", subject: "Programming Essentials in C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C3_3A", "C3_3B"] }
+                    { id: 39, time: "09:00 - 10:20", subject: "Microsoft Office", type: "lecture", instructor: "Dr. Haymen El-Sayed", location: "Hall 101", targets: ["C1_ALL"] },
+                    { id: 40, time: "10:20 - 11:40", subject: "Cyber Security", type: "lecture", instructor: "Dr. Ashraf Abdelaziz", location: "Hall 101", targets: ["C1_ALL"] },
+                    { id: 41, time: "11:40 - 01:00", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 202/203", targets: ["C1_4A", "C1_4B"] },
+                    { id: 42, time: "11:40 - 01:00", subject: "Programming C", type: "lab", instructor: "TBA", location: "University/Oasis Lab", targets: ["C1_3A", "C1_3B"] },
+                    { id: 43, time: "01:00 - 02:20", subject: "Programming C", type: "lecture", instructor: "Dr. Ghada", location: "Hall 118", targets: ["C1_ALL"] },
+                    { id: 44, time: "09:00 - 10:20", subject: "Programming C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C2_1A", "C2_1B"] },
+                    { id: 45, time: "09:00 - 10:20", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 216/304", targets: ["C2_2A", "C2_2B", "C2_3A", "C2_3B"] },
+                    { id: 46, time: "09:00 - 10:20", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 203/202", targets: ["C2_4A", "C2_4B"] },
+                    { id: 47, time: "11:00 - 11:40", subject: "Cyber Security", type: "lecture", instructor: "Dr. Ashraf Abdelaziz", location: "Hall 101", targets: ["C2_ALL"] },
+                    { id: 48, time: "11:40 - 01:00", subject: "Intro To IOT", type: "lecture", instructor: "Dr. Osama / Dr. Basant", location: "Hall 101", targets: ["C2_ALL"] },
+                    { id: 49, time: "01:40 - 03:00", subject: "Mathematics 2", type: "lab", instructor: "TBA", location: "Hall 315/304", targets: ["C2_1A", "C2_1B", "C2_3A", "C2_3B"] },
+                    { id: 50, time: "01:40 - 03:00", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 316/207", targets: ["C2_2A", "C2_2B"] },
+                    { id: 51, time: "09:00 - 10:20", subject: "Mathematics 2", type: "lecture", instructor: "Dr. Mohamed El-Shazly", location: "Hall 118", targets: ["C3_ALL"] },
+                    { id: 52, time: "10:20 - 11:40", subject: "Intro To IOT", type: "lecture", instructor: "Dr. Osama / Dr. Basant", location: "Hall 118", targets: ["C3_ALL"] },
+                    { id: 53, time: "11:40 - 01:00", subject: "Technical English 2", type: "lecture", instructor: "Dr. Mohamed El-Kadeem", location: "Hall 118", targets: ["C3_ALL"] },
+                    { id: 54, time: "01:40 - 03:00", subject: "Intro To IOT", type: "lab", instructor: "TBA", location: "Lab 203/202", targets: ["C3_4A", "C3_4B"] },
+                    { id: 55, time: "01:40 - 03:00", subject: "Programming C", type: "lab", instructor: "TBA", location: "Oasis Lab", targets: ["C3_3A", "C3_3B"] }
                 ]
             }
         ];
+
+        let scheduleData = [];
+        let isEditMode = false;
+        let notificationSentMap = {}; // To prevent spamming notifications
+
+        // --- 2. Notification System ---
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                alert("This browser does not support desktop notifications");
+                return;
+            }
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    document.getElementById('notifyBtn').innerText = "✅ Notifications Active";
+                    document.getElementById('notifyBtn').classList.add('active');
+                    sendNotification("Notifications Enabled", "You will be notified about your classes!");
+                }
+            });
+        }
+
+        function sendNotification(title, body) {
+            if (Notification.permission === "granted") {
+                new Notification(title, {
+                    body: body,
+                    icon: "https://cdn-icons-png.flaticon.com/512/2693/2693507.png" // أيقونة جدول
+                });
+            }
+        }
+
+        function checkNotifications(classes) {
+            const now = new Date();
+            const daysInEnglish = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const currentDayName = daysInEnglish[now.getDay()];
+
+            // 1. Check for tomorrow's classes (at 9 PM)
+            if (now.getHours() === 21 && now.getMinutes() === 0 && !notificationSentMap['tomorrow-' + now.getDate()]) {
+                const nextDayIndex = (now.getDay() + 1) % 7;
+                const nextDayName = daysInEnglish[nextDayIndex];
+                const hasClassTomorrow = scheduleData.some(d => d.day === nextDayName && d.classes.length > 0);
+                
+                if (hasClassTomorrow) {
+                    sendNotification("📅 Upcoming School Day", `You have classes tomorrow (${nextDayName}). Check your schedule!`);
+                    notificationSentMap['tomorrow-' + now.getDate()] = true;
+                }
+            }
+
+            // 2. Check for Today's Classes
+            // We only care about classes in the current filtered view (The user's group)
+            const currentFilter = document.getElementById('groupSelect').value;
+            const studentCohort = currentFilter.split('_')[0];
+            
+            // Find today's classes from data
+            const todayData = scheduleData.find(d => d.day === currentDayName);
+            if (!todayData) return;
+
+            const myClasses = todayData.classes.filter(cls => {
+                if (currentFilter === 'all') return true;
+                if (cls.targets.includes(currentFilter)) return true;
+                if (cls.targets.includes(studentCohort + '_ALL')) return true;
+                return false;
+            });
+
+            myClasses.forEach(cls => {
+                const [startStr] = cls.time.split('-').map(s => s.trim());
+                let [hours, minutes] = startStr.split(':').map(Number);
+                if (hours < 8) hours += 12; // PM adjustment
+
+                const classTime = new Date();
+                classTime.setHours(hours, minutes, 0, 0);
+
+                const diffMinutes = (classTime - now) / 60000; // Difference in minutes
+
+                // Notify: 15 Minutes Before
+                if (diffMinutes <= 15 && diffMinutes > 14 && !notificationSentMap[cls.id + '-15min']) {
+                    sendNotification("⏳ Class Starting Soon", `${cls.subject} starts in 15 mins at ${cls.location}`);
+                    notificationSentMap[cls.id + '-15min'] = true;
+                }
+
+                // Notify: Starting Now
+                if (diffMinutes <= 0 && diffMinutes > -1 && !notificationSentMap[cls.id + '-now']) {
+                    sendNotification("🔴 Class Started", `${cls.subject} is happening now!`);
+                    notificationSentMap[cls.id + '-now'] = true;
+                }
+            });
+        }
+
+        // --- 3. App Logic ---
+        window.onload = () => {
+            const saved = localStorage.getItem('myProScheduleV1');
+            scheduleData = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultData));
+            
+            const savedFilter = localStorage.getItem('savedCohortGroup') || 'all';
+            document.getElementById('groupSelect').value = savedFilter;
+            
+            if (Notification.permission === "granted") {
+                document.getElementById('notifyBtn').innerText = "✅ Notifications Active";
+                document.getElementById('notifyBtn').classList.add('active');
+            }
+
+            renderSchedule(savedFilter);
+
+            // Check for notifications every 30 seconds
+            setInterval(() => {
+                renderSchedule(document.getElementById('groupSelect').value); // Refresh UI (Happening Now badge)
+                checkNotifications();
+            }, 30000);
+        };
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            document.body.classList.toggle('editing');
+            const btn = document.querySelector('.btn-edit');
+            btn.innerHTML = isEditMode ? '❌ Close' : '✏️ Edit';
+            btn.style.background = isEditMode ? '#64748b' : 'var(--primary)';
+            renderSchedule(document.getElementById('groupSelect').value);
+        }
+
+        function saveChanges() {
+            isEditMode = false;
+            document.body.classList.remove('editing');
+            localStorage.setItem('myProScheduleV1', JSON.stringify(scheduleData));
+            alert("✅ Schedule Updated!");
+            location.reload(); 
+        }
+
+        function resetData() {
+            if(confirm("⚠ Reset all data?")) {
+                localStorage.removeItem('myProScheduleV1');
+                location.reload();
+            }
+        }
+
+        function updateItem(id, field, value) {
+            scheduleData.forEach(day => {
+                day.classes.forEach(cls => {
+                    if(cls.id === id) cls[field] = value;
+                });
+            });
+            if(field === 'type') renderSchedule(document.getElementById('groupSelect').value);
+        }
+
+        function deleteItem(id) {
+            if(confirm("Delete this class?")) {
+                scheduleData.forEach(day => {
+                    day.classes = day.classes.filter(cls => cls.id !== id);
+                });
+                renderSchedule(document.getElementById('groupSelect').value);
+            }
+        }
+
+        function addNewClass(dayName) {
+            const currentFilter = document.getElementById('groupSelect').value;
+            const newId = Date.now();
+            const dayObj = scheduleData.find(d => d.day === dayName);
+            if(dayObj) {
+                dayObj.classes.push({
+                    id: newId, time: "00:00 - 00:00", subject: "New Class", type: "lecture",
+                    instructor: "Instructor", location: "Location",
+                    targets: [currentFilter === 'all' ? 'C1_ALL' : currentFilter]
+                });
+                renderSchedule(currentFilter);
+            }
+        }
 
         function isHappeningNow(dayName, timeRange) {
             const date = new Date();
             const daysInEnglish = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             const currentDay = daysInEnglish[date.getDay()];
-
             if (dayName !== currentDay) return false;
-
+            if (!timeRange) return false;
             const [startStr, endStr] = timeRange.split('-').map(s => s.trim());
-
             function timeToMinutes(timeString) {
                 let [hours, minutes] = timeString.split(':').map(Number);
                 if (hours < 8) hours += 12; 
                 return (hours * 60) + minutes;
             }
-
             const startMins = timeToMinutes(startStr);
             const endMins = timeToMinutes(endStr);
             const currentMins = (date.getHours() * 60) + date.getMinutes();
-
             return currentMins >= startMins && currentMins <= endMins;
         }
 
-        function renderSchedule(filterValue = 'all') {
+        function renderSchedule(filterValue) {
             const container = document.getElementById('schedule-container');
             container.innerHTML = ''; 
-            
             const studentCohort = filterValue.split('_')[0]; 
 
             scheduleData.forEach(dayData => {
@@ -425,59 +389,31 @@
                     if (cls.targets.includes(studentCohort + '_ALL')) return true;
                     return false;
                 });
+                filteredClasses.sort((a, b) => parseInt(a.time) - parseInt(b.time));
 
-                filteredClasses.sort((a, b) => {
-                   const aHour = parseInt(a.time.split(':')[0]);
-                   const bHour = parseInt(b.time.split(':')[0]);
-                   const aAdjusted = aHour < 8 ? aHour + 12 : aHour;
-                   const bAdjusted = bHour < 8 ? bHour + 12 : bHour;
-                   return aAdjusted - bAdjusted;
-                });
-
-                if (filteredClasses.length > 0) {
+                if (filteredClasses.length > 0 || isEditMode) {
                     const daySection = document.createElement('div');
                     daySection.className = 'day-section';
-                    
-                    const dayTitle = document.createElement('h2');
-                    dayTitle.className = 'day-title';
-                    dayTitle.innerText = dayData.day;
-                    daySection.appendChild(dayTitle);
-
+                    const header = document.createElement('div');
+                    header.className = 'day-header';
+                    header.innerHTML = `<div class="day-title">${dayData.day}</div><button class="btn-add-class" onclick="addNewClass('${dayData.day}')">+ Add Class</button>`;
+                    daySection.appendChild(header);
                     const grid = document.createElement('div');
                     grid.className = 'cards-grid';
-
                     filteredClasses.forEach(cls => {
                         const typeText = cls.type === 'lecture' ? 'Lecture' : 'Lab / Sec';
                         const active = isHappeningNow(dayData.day, cls.time);
                         const activeClass = active ? 'active-now' : '';
-                        const activeBadgeHtml = active ? `<span class="active-badge">🔴 Happening Now</span>` : '';
-
+                        const activeBadgeHtml = active ? `<span class="active-badge">🔴 Now</span>` : '';
+                        const contentEditable = isEditMode ? 'contenteditable="true"' : '';
                         const card = document.createElement('div');
                         card.className = `card ${cls.type} ${activeClass}`;
-                        
-                        let displayTargets = cls.targets.map(t => t.replace('_ALL', ' All').replace('_', ' Sec ')).join(', ');
-                        if(filterValue !== 'all') { displayTargets = 'Your Group'; } 
-
-                        card.innerHTML = `
-                            <div class="card-header">
-                                <div class="time-wrapper">
-                                    <span class="time">⏰ ${cls.time}</span>
-                                    ${activeBadgeHtml}
-                                </div>
-                                <span class="badge ${cls.type}">${typeText}</span>
-                            </div>
-                            <div class="subject">${cls.subject}</div>
-                            <div class="details">
-                                <p><strong>👨‍🏫 Instructor:</strong> ${cls.instructor}</p>
-                                <p><strong>📍 Location:</strong> ${cls.location}</p>
-                            </div>
-                            <div class="groups">
-                                <span class="group-tag">🎯 Target: ${displayTargets}</span>
-                            </div>
-                        `;
+                        const badgeHtml = isEditMode 
+                            ? `<select class="edit-select" onchange="updateItem(${cls.id}, 'type', this.value)"><option value="lecture" ${cls.type === 'lecture' ? 'selected' : ''}>Lecture</option><option value="lab" ${cls.type === 'lab' ? 'selected' : ''}>Lab</option></select>`
+                            : `<span class="badge ${cls.type}">${typeText}</span>`;
+                        card.innerHTML = `<button class="delete-btn" onclick="deleteItem(${cls.id})">×</button><div class="card-header"><span class="time" ${contentEditable} onblur="updateItem(${cls.id}, 'time', this.innerText)">${cls.time}</span><div style="display:flex; align-items:center">${badgeHtml}${activeBadgeHtml}</div></div><div class="subject" ${contentEditable} onblur="updateItem(${cls.id}, 'subject', this.innerText)">${cls.subject}</div><div class="details"><div>👨‍🏫 <span ${contentEditable} onblur="updateItem(${cls.id}, 'instructor', this.innerText)">${cls.instructor}</span></div><div>📍 <span ${contentEditable} onblur="updateItem(${cls.id}, 'location', this.innerText)">${cls.location}</span></div></div>`;
                         grid.appendChild(card);
                     });
-
                     daySection.appendChild(grid);
                     container.appendChild(daySection);
                 }
@@ -485,21 +421,10 @@
         }
 
         function applyFilter() {
-            const selectedValue = document.getElementById('groupSelect').value;
-            localStorage.setItem('savedCohortGroup', selectedValue); 
-            renderSchedule(selectedValue);
+            const val = document.getElementById('groupSelect').value;
+            localStorage.setItem('savedCohortGroup', val);
+            renderSchedule(val);
         }
-
-        window.onload = () => {
-            const savedValue = localStorage.getItem('savedCohortGroup') || 'all';
-            document.getElementById('groupSelect').value = savedValue;
-            renderSchedule(savedValue);
-        };
-
-        setInterval(() => {
-            const selectedValue = document.getElementById('groupSelect').value;
-            renderSchedule(selectedValue);
-        }, 60000); 
     </script>
 </body>
 </html>
