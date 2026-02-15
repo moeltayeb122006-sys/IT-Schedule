@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BATU Schedule | Smart</title>
+    <title>BATU Schedule | Pro Audio</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #2563eb; --danger: #ef4444; --success: #10b981; --bg: #f8fafc; --card-bg: #ffffff; --text: #1e293b; --border: #e2e8f0; }
@@ -14,13 +14,17 @@
         .header h1 { color: var(--primary); margin: 0; font-weight: 800; font-size: 1.8em; letter-spacing: -0.5px; }
         .header p { color: #64748b; margin-top: 5px; font-size: 0.9em; }
 
-        .btn-notify {
-            background: #f59e0b; color: white; border: none; padding: 8px 15px; 
-            border-radius: 20px; font-size: 0.85em; font-weight: bold; cursor: pointer; 
-            margin-top: 10px; display: inline-flex; align-items: center; gap: 5px;
-            box-shadow: 0 4px 6px rgba(245, 158, 11, 0.3);
+        /* Notification Banner (Toast) Style */
+        #notification-banner {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            background: #1e293b; color: white; padding: 15px 25px; border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 9999;
+            display: flex; align-items: center; gap: 15px; transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 90%; max-width: 400px; border: 1px solid rgba(255,255,255,0.1);
         }
-        .btn-notify.active { background: #10b981; box-shadow: none; cursor: default; }
+        #notification-banner.show { top: 20px; }
+        .bell-icon { font-size: 1.5em; animation: ring 1s infinite; }
+        @keyframes ring { 0%{transform:rotate(0deg)} 25%{transform:rotate(15deg)} 50%{transform:rotate(-15deg)} 75%{transform:rotate(5deg)} 100%{transform:rotate(0deg)} }
 
         /* Floating Action Bar */
         .controls { 
@@ -96,12 +100,14 @@
 </head>
 <body>
 
+    <div id="notification-banner">
+        <div class="bell-icon">🔔</div>
+        <div id="notification-text">Class starting now!</div>
+    </div>
+
     <div class="header">
         <h1>BATU Schedule</h1>
-        <p>Smart Edition 🔔</p>
-        <button id="notifyBtn" class="btn-notify" onclick="requestNotificationPermission()">
-            🔔 Enable Notifications
-        </button>
+        <p>Smart Edition 🔊</p>
     </div>
 
     <div class="filter-section">
@@ -122,7 +128,7 @@
     </div>
 
     <script>
-        // --- 1. Data Structure ---
+        // --- Data Structure ---
         const defaultData = [
             {
                 day: "Saturday",
@@ -198,55 +204,45 @@
 
         let scheduleData = [];
         let isEditMode = false;
-        let notificationSentMap = {}; // To prevent spamming notifications
+        let notificationSentMap = {};
 
-        // --- 2. Notification System ---
-        function requestNotificationPermission() {
-            if (!("Notification" in window)) {
-                alert("This browser does not support desktop notifications");
-                return;
+        // --- In-App Notification System ---
+        function triggerInAppNotification(text) {
+            // 1. Show Visual Banner
+            const banner = document.getElementById('notification-banner');
+            document.getElementById('notification-text').innerText = text;
+            banner.classList.add('show');
+            
+            // 2. Play Sound (Simple Beep)
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(440, audioCtx.currentTime); // A4 note
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5); // 0.5 seconds duration
+            } catch(e) {
+                console.log("Audio play failed (user interaction needed first)");
             }
-            Notification.requestPermission().then(permission => {
-                if (permission === "granted") {
-                    document.getElementById('notifyBtn').innerText = "✅ Notifications Active";
-                    document.getElementById('notifyBtn').classList.add('active');
-                    sendNotification("Notifications Enabled", "You will be notified about your classes!");
-                }
-            });
+
+            // Hide banner after 5 seconds
+            setTimeout(() => {
+                banner.classList.remove('show');
+            }, 5000);
         }
 
-        function sendNotification(title, body) {
-            if (Notification.permission === "granted") {
-                new Notification(title, {
-                    body: body,
-                    icon: "https://cdn-icons-png.flaticon.com/512/2693/2693507.png" // أيقونة جدول
-                });
-            }
-        }
-
-        function checkNotifications(classes) {
+        function checkNotifications() {
             const now = new Date();
             const daysInEnglish = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             const currentDayName = daysInEnglish[now.getDay()];
 
-            // 1. Check for tomorrow's classes (at 9 PM)
-            if (now.getHours() === 21 && now.getMinutes() === 0 && !notificationSentMap['tomorrow-' + now.getDate()]) {
-                const nextDayIndex = (now.getDay() + 1) % 7;
-                const nextDayName = daysInEnglish[nextDayIndex];
-                const hasClassTomorrow = scheduleData.some(d => d.day === nextDayName && d.classes.length > 0);
-                
-                if (hasClassTomorrow) {
-                    sendNotification("📅 Upcoming School Day", `You have classes tomorrow (${nextDayName}). Check your schedule!`);
-                    notificationSentMap['tomorrow-' + now.getDate()] = true;
-                }
-            }
-
-            // 2. Check for Today's Classes
-            // We only care about classes in the current filtered view (The user's group)
             const currentFilter = document.getElementById('groupSelect').value;
             const studentCohort = currentFilter.split('_')[0];
             
-            // Find today's classes from data
             const todayData = scheduleData.find(d => d.day === currentDayName);
             if (!todayData) return;
 
@@ -260,28 +256,28 @@
             myClasses.forEach(cls => {
                 const [startStr] = cls.time.split('-').map(s => s.trim());
                 let [hours, minutes] = startStr.split(':').map(Number);
-                if (hours < 8) hours += 12; // PM adjustment
+                if (hours < 8) hours += 12; 
 
                 const classTime = new Date();
                 classTime.setHours(hours, minutes, 0, 0);
 
-                const diffMinutes = (classTime - now) / 60000; // Difference in minutes
+                const diffMinutes = (classTime - now) / 60000;
 
-                // Notify: 15 Minutes Before
+                // 15 Min Warning
                 if (diffMinutes <= 15 && diffMinutes > 14 && !notificationSentMap[cls.id + '-15min']) {
-                    sendNotification("⏳ Class Starting Soon", `${cls.subject} starts in 15 mins at ${cls.location}`);
+                    triggerInAppNotification(`⏳ ${cls.subject} starts in 15 mins!`);
                     notificationSentMap[cls.id + '-15min'] = true;
                 }
 
-                // Notify: Starting Now
+                // Started Now
                 if (diffMinutes <= 0 && diffMinutes > -1 && !notificationSentMap[cls.id + '-now']) {
-                    sendNotification("🔴 Class Started", `${cls.subject} is happening now!`);
+                    triggerInAppNotification(`🔴 ${cls.subject} has started!`);
                     notificationSentMap[cls.id + '-now'] = true;
                 }
             });
         }
 
-        // --- 3. App Logic ---
+        // --- App Logic ---
         window.onload = () => {
             const saved = localStorage.getItem('myProScheduleV1');
             scheduleData = saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultData));
@@ -289,18 +285,13 @@
             const savedFilter = localStorage.getItem('savedCohortGroup') || 'all';
             document.getElementById('groupSelect').value = savedFilter;
             
-            if (Notification.permission === "granted") {
-                document.getElementById('notifyBtn').innerText = "✅ Notifications Active";
-                document.getElementById('notifyBtn').classList.add('active');
-            }
-
             renderSchedule(savedFilter);
 
-            // Check for notifications every 30 seconds
+            // Check loop
             setInterval(() => {
-                renderSchedule(document.getElementById('groupSelect').value); // Refresh UI (Happening Now badge)
+                renderSchedule(document.getElementById('groupSelect').value);
                 checkNotifications();
-            }, 30000);
+            }, 30000); // Check every 30 seconds
         };
 
         function toggleEditMode() {
@@ -316,7 +307,7 @@
             isEditMode = false;
             document.body.classList.remove('editing');
             localStorage.setItem('myProScheduleV1', JSON.stringify(scheduleData));
-            alert("✅ Schedule Updated!");
+            alert("✅ Saved!");
             location.reload(); 
         }
 
